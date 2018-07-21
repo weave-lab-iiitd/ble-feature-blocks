@@ -5,31 +5,22 @@
 
 BLEPeripheral blep;
 BLEService bless = BLEService("CCC0");
-BLEIntCharacteristic sensor_char("CCC1", BLERead | BLENotify);
+BLEIntCharacteristic test_char("CCC1", BLERead | BLENotify);
 
 #define LED 13
 int ledState = LOW;
 unsigned long prev = 0;
 unsigned long prev2 = 0;
-
-#define outputA 0
-#define outputB 1
-int counter = 0;
-int aState;
-int aLastState;
+unsigned long cnt = 3000000;
 
 void setup() {
   pinMode(LED, OUTPUT);  
-  blep.setLocalName("BLEP");
-  blep.setDeviceName("BLEP");
+  blep.setLocalName("TEST3");
+  blep.setDeviceName("TEST3");
   blep.setAdvertisedServiceUuid(bless.uuid());
   blep.addAttribute(bless);
-  blep.addAttribute(sensor_char);
+  blep.addAttribute(test_char);
   blep.begin();
-
-  pinMode (outputA, INPUT);
-  pinMode (outputB, INPUT);
-  aLastState = digitalRead(outputA);
 }
 
 void loop() {
@@ -39,20 +30,9 @@ void loop() {
     digitalWrite(LED, ledState);
   }
   blep.poll();
-  aState = digitalRead(outputA);
-  if (aState != aLastState) {
-    if (digitalRead(outputB) != aState) {
-      counter++;
-    }
-    else {
-      counter--;
-    }
-  }
-  aLastState = aState;
   
   if (millis() - prev2 > 50) {
     prev2 = millis();
-    sensor_char.setValue(counter);
+    test_char.setValue(cnt++);
   }
-  
 }
